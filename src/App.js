@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import CustomCard from "./Card";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+const App = () => {
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        axios.get('https://randomuser.me/api?results=25')
+        .then(res => {
+          const { data } = res;
+          console.log(data)
+          setUsers(data.results)
+      })
+    }, [])
+
+   const changeName = (userToUpdate) => {
+    setUsers(users.map((user) => {
+        if (userToUpdate.email === user.email) {
+            return {
+                ...user,
+                name: {
+                    ...userToUpdate.name,
+                    first: userToUpdate.name.first
+                }
+            }
+        }
+        return user;
+    }))
+   }
+
+    return (
+        <div className="App">
+          {users.map((user, idx) => (
+            <CustomCard
+              key={idx}
+              img={user.picture.large}
+              name={`${user.name.first} ${user.name.last}`}
+              email={user.email}
+              changeName={changeName}
+              user={user}
+             />
+          ))}
+        </div>
+      );
 }
 
 export default App;
